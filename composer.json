@@ -1,5 +1,5 @@
 {
-    "name": "sereny/nova-permissions",
+    "name": "ecoughtry/nova-permissions",
     "description": "Laravel Nova 4 Grouped Permissions",
     "keywords": [ "laravel", "nova", "permission", "role" ],
     "license": "MIT",
