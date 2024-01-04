@@ -4,11 +4,12 @@ namespace Sereny\NovaPermissions\Models;
 
 use Sereny\NovaPermissions\Traits\SupportsRole;
 use Spatie\Permission\Models\Role as SpatieRole;
+use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 class Role extends SpatieRole
 {
     use SupportsRole; // REQUIRED TRAIT
-
+    use BelongsToTenant;
     /**
      * The "booted" method of the model.
      *
