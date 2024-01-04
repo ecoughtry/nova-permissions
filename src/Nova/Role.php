@@ -62,9 +62,7 @@ class Role extends Resource
                 }),
 
             Text::make(__('Name'), 'name')
-                ->rules(['required', 'string', 'max:255'])
-                ->creationRules('unique:' . config('permission.table_names.roles'))
-                ->updateRules('unique:' . config('permission.table_names.roles') . ',name,{{resourceId}}'),
+                ->rules(['required', 'string', 'max:255']),
 
             Select::make(__('Guard Name'), 'guard_name')
                 ->options($guardOptions->toArray())
