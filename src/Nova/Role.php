@@ -76,14 +76,27 @@ class Role extends Resource
 
             Checkboxes::make(__('Permissions'), 'permissions')
                 ->options($this->loadPermissions()->map(function ($permission, $key) {
+                    // Determine the label based on the permission name
+                    $label = $permission->name;
+                    if (preg_match('/^viewAny(.+)/', $label, $matches)) {
+                        $label = 'View All ' . ucfirst($matches[1]);
+                    } elseif (preg_match('/^view(.+)/', $label, $matches)) {
+                        $label = 'Read ' . ucfirst($matches[1]);
+                    } elseif (preg_match('/^ViewStats(.+)/', $label, $matches)) {
+                        $label = 'Read Stats ' . ucfirst($matches[1]);
+                    } elseif (preg_match('/^(update|create|delete|destroy)(.+)/', $label, $matches)) {
+                        $label = ucfirst($matches[1]) . ' ' . ucfirst($matches[2]);
+                    }
+
                     return [
                         'group'  => __(ucfirst($permission->group)),
                         'option' => $permission->name,
-                        'label'  => __($permission->name),
+                        'label'  => __($label),
                     ];
                 })
-                ->groupBy('group')
-                ->toArray()),
+                    ->groupBy('group')
+                    ->toArray()),
+
 
             Text::make(__('Users'), function () {
                 return $this->users()->count();
