@@ -1,7 +1,7 @@
 {
     "name": "ecoughtry/nova-permissions",
     "description": "Laravel Nova 4 Grouped Permissions",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "keywords": [ "laravel", "nova", "permission", "role" ],
     "license": "MIT",
     "prefer-stable": true,
