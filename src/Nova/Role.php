@@ -10,7 +10,7 @@ use Laravel\Nova\Fields\MorphToMany;
 use Sereny\NovaPermissions\Fields\Checkboxes;
 use Sereny\NovaPermissions\Models\Role as RoleModel;
 
-class Role extends Resource
+class Role extends RoleResource
 {
 
     /**
