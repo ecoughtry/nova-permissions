@@ -6,6 +6,8 @@ use Sereny\NovaPermissions\Traits\ModelForGuardResolver;
 use Laravel\Nova\Nova;
 use Laravel\Nova\Resource as NovaResource;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Nova\Http\Requests\NovaRequest;
+use Illuminate\Support\Str;
 
 
 /**
