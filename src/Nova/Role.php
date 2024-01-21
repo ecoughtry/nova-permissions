@@ -9,9 +9,11 @@ use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\MorphToMany;
 use Sereny\NovaPermissions\Fields\Checkboxes;
 use Sereny\NovaPermissions\Models\Role as RoleModel;
+use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 class Role extends RoleResource
 {
+    use BelongsToTenant;
 
     /**
      * The list of field name that should be hidden
