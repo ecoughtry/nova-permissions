@@ -112,10 +112,7 @@ class Role extends RoleResource
                 })
                     ->groupBy('group')
                     ->toArray()),
-<<<<<<< HEAD
 
-=======
->>>>>>> upstream/master
 
             Text::make(__('Users'), function () {
                 /**
