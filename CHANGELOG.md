@@ -1,16 +1,38 @@
 # Release Notes
 
+## 1.7.0 (2024-12-27)
+
+- Add support for Laravel Nova 5
+- Drop support for Laravel Nova 4 and lower
+
+## 1.6.2 (2024-07-31)
+
+- Add setter methods for Role and Permission policies.
+- Add cache for `permissions` and `users count` query on Role resource, improving index performance.
+- Fixed an issue when listing the Roles when Preventing Lazy Loading is active.
+
+## 1.6.1 (2024-05-06)
+
+- Add namespace to seeders.
+- Fix issue where permission menu item did not respect `disablePermissions`.
+
+## 1.6.0 (2024-03-19)
+
+- Added `disableMenu` to allow handling custom menu.
+
+## 1.5.0 (2024-02-06)
+
+- Fixed an issue where permission and role resources was not displayed in custom menu.
+
 ## 1.4.0 (2023-11-17)
 
-- Add support for "spatie/laravel-permission" 6.0
+- Added support for "spatie/laravel-permission" 6.0.
 
 ## 1.3.2 (2023-08-20)
 
-- Fixed issue publishing `seeders`
+- Fixed issue publishing `seeders`.
 
 ## v1.3.1 (2023-06-01)
-
-- Fixed an issue where permission resource was not displayed in custom menu.
 
 ## v1.3.0 (2023-04-27)
 

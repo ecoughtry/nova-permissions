@@ -42,6 +42,13 @@ class NovaPermissions extends Tool
      */
     public $displayPermissions = true;
 
+
+    /**
+     * @var bool
+     */
+    public $menuDisabled = false;
+
+
     /**
      * Perform any tasks that need to happen when the tool is booted.
      *
@@ -57,8 +64,7 @@ class NovaPermissions extends Tool
         Gate::policy(config('permission.models.permission'), $this->permissionPolicy);
         Gate::policy(config('permission.models.role'), $this->rolePolicy);
 
-        Nova::script('nova-permissions', __DIR__.'/../dist/js/tool.js');
-        Nova::style('nova-permissions', __DIR__.'/../dist/css/tool.css');
+        Nova::mix('nova-permissions', __DIR__.'/../dist/mix-manifest.json');
     }
 
     /**
@@ -82,6 +88,30 @@ class NovaPermissions extends Tool
     public function permissionResource($resourceClass)
     {
         $this->permissionResource = $resourceClass;
+        return $this;
+    }
+
+    /**
+     * Set the role policy class name
+     *
+     * @param  class-string $rolePolicy
+     * @return $this
+     */
+    public function rolePolicy($rolePolicy)
+    {
+        $this->rolePolicy = $rolePolicy;
+        return $this;
+    }
+
+     /**
+     * Set the permission policy class name
+     *
+     * @param  class-string $permissionPolicy
+     * @return $this
+     */
+    public function permissionPolicy($permissionPolicy)
+    {
+        $this->permissionPolicy = $permissionPolicy;
         return $this;
     }
 
@@ -146,6 +176,19 @@ class NovaPermissions extends Tool
     }
 
     /**
+     * If the default menu should be available
+     *
+     * @return $this
+     */
+    public function disableMenu()
+    {
+        $this->menuDisabled = true;
+        $this->roleResource::$displayInNavigation = $this->menuDisabled;
+        $this->permissionResource::$displayInNavigation = $this->menuDisabled;
+        return $this;
+    }
+
+    /**
      * Build the menu that renders the navigation links for the tool.
      *
      * @param  \Illuminate\Http\Request $request
@@ -153,10 +196,19 @@ class NovaPermissions extends Tool
      */
     public function menu(Request $request)
     {
-        return MenuSection::make(__('Roles & Permissions'), [
-            $this->makeMenuItem($this->roleResource),
-            $this->makeMenuItem($this->permissionResource, $this->displayPermissions)
-        ])->icon('shield-check')->collapsable();
+        if ($this->menuDisabled) {
+            return [];
+        }
+
+        $itens = [$this->createMenuItem($this->roleResource)];
+
+        if ($this->displayPermissions) {
+            $itens[] = $this->createMenuItem($this->permissionResource);
+        }
+
+        return MenuSection::make(__('Roles & Permissions'), $itens)
+            ->icon('shield-check')
+            ->collapsable();
     }
 
     /**
@@ -164,12 +216,9 @@ class NovaPermissions extends Tool
      * @param  class-string<\Laravel\Nova\Resource>  $resourceClass
      * @return void
      */
-    protected function makeMenuItem($resourceClass, $displayInNavigation = true)
+    protected function createMenuItem($resourceClass)
     {
         return MenuItem::make($resourceClass::label())
-            ->path('/resources/'.$resourceClass::uriKey())
-            ->canSee(function ($request) use ($resourceClass, $displayInNavigation) {
-                return $displayInNavigation && $resourceClass::authorizedToViewAny($request);
-            });
+            ->path('/resources/'.$resourceClass::uriKey());
     }
 }

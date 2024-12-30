@@ -1,12 +1,14 @@
 <?php
 namespace Sereny\NovaPermissions\Nova;
 
+use Illuminate\Database\Query\Builder;
 use Laravel\Nova\Fields\ID;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\Text;
 use Illuminate\Validation\Rule;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\MorphToMany;
+use Laravel\Nova\Http\Requests\NovaRequest;
 use Sereny\NovaPermissions\Fields\Checkboxes;
 use Sereny\NovaPermissions\Models\Role as RoleModel;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
@@ -14,6 +16,12 @@ use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 class Role extends RoleResource
 {
     use BelongsToTenant;
+    /**
+     * Indicates if the resource should be displayed in the sidebar.
+     *
+     * @var bool
+     */
+    public static $displayInNavigation = false;
 
     /**
      * The list of field name that should be hidden
@@ -44,6 +52,14 @@ class Role extends RoleResource
      * @var string
      */
     public static $title = 'name';
+
+    /**
+     * Indicates if the resource should be displayed in the sidebar.
+     *
+     */
+    public static $with = [
+        'permissions',
+    ];
 
     /**
      * Get the fields displayed by the resource.
@@ -96,10 +112,17 @@ class Role extends RoleResource
                 })
                     ->groupBy('group')
                     ->toArray()),
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/master
 
             Text::make(__('Users'), function () {
-                return $this->users()->count();
+                /**
+                 * We eager load count for the users relationship in the index query.
+                 * @see self::indexQuery()
+                 */
+                return isset($this->users_count) ? $this->users_count : $this->users()->count();
             })->exceptOnForms(),
 
             MorphToMany::make($userResource::label(), 'users', $userResource)
@@ -115,22 +138,36 @@ class Role extends RoleResource
         return __('Roles');
     }
 
-
     public static function singularLabel()
     {
         return __('Role');
     }
 
     /**
-     * Load all permissions
+     * Let's eager load the user count within the "index" query.
+     */
+    public static function indexQuery(NovaRequest $request, $query)
+    {
+        /** @var Builder|PermissionModel $query */
+        return parent::indexQuery($request, $query)->withCount('users');
+    }
+
+    /**
+     * Load all permissions and cache for 1 minute.
+     * Enough to avoid N+1 at the Role index page,
+     * and not long enough to have them stalled.
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
     protected function loadPermissions()
     {
-        /** @var class-string */
-        $permissionClass = config('permission.models.permission');
+        $expirationTime = config('permission.cache.nova_expiration_time', now()->addMinute());
 
-        return $permissionClass::all()->unique('name');
+        return cache()->remember('sereny-nova-permissions', $expirationTime, function () {
+            /** @var class-string */
+            $permissionClass = config('permission.models.permission');
+
+            return $permissionClass::all()->unique('name');
+        });
     }
 }

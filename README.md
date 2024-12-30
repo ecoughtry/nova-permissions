@@ -1,4 +1,7 @@
-# Laravel Nova 4 Roles & Permissions
+# Laravel Nova - Roles & Permissions
+
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/sereny/nova-permissions?style=flat-square)](https://packagist.org/packages/sereny/nova-permissions)
+[![Total Downloads](https://poser.pugx.org/sereny/nova-permissions/downloads?format=flat-square)](https://packagist.org/packages/sereny/nova-permissions)
 
 A Laravel Nova Tool that allows you to group your Permissions and attach it to Users. It uses Spatie's laravel-permission.
 
@@ -6,15 +9,14 @@ We have a Migration, Seed, Policy and Resource ready for a good Authorization Ex
 
 1. [Installation](#Installation)
 2. [Permissions with Groups](#permissions-with-groups)
-    * [Index view](#index-view)
-    * [Detail View](#detail-view)
-    * [Edit View](#edit-view)
-    * [Database Seeding](#database-seeding)
-    * [Create a Model Policy](#create-a-model-policy)
-    * [Super Admin](#super-admin)
+   - [Index view](#index-view)
+   - [Detail View](#detail-view)
+   - [Edit View](#edit-view)
+   - [Database Seeding](#database-seeding)
+   - [Create a Model Policy](#create-a-model-policy)
+   - [Super Admin](#super-admin)
 3. [Customization](#customization)
 4. [Credits](#credits)
-
 
 ## Installation
 
@@ -72,7 +74,7 @@ public function tools()
 
 ```
 
-Finally, add `MorphToMany` fields to you `app/Nova/User` resource:
+Finally, add `MorphToMany` fields to your `app/Nova/User` resource:
 
 ```php
 // ...
@@ -88,7 +90,7 @@ public function fields(Request $request)
 }
 ```
 
-Add the Spatie\Permission\Traits\HasRoles trait to your User model(s):
+Add the `Spatie\Permission\Traits\HasRoles` trait to your User model(s):
 
 ```php
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -118,7 +120,6 @@ A new menu item called **Roles & Permissions** will appear in your Nova app afte
 
 ![image](/.github/images/role-edit.png)
 
-
 ### Database Seeding
 
 Publish our Seeder with the following command:
@@ -126,7 +127,6 @@ Publish our Seeder with the following command:
 ```
 php artisan vendor:publish --provider="Sereny\NovaPermissions\ToolServiceProvider" --tag="seeders"
 ```
-
 
 This is just an example on how you could seed your Database with Roles and Permissions. Modify `RolesAndPermissionsSeeder.php` in `database/seeders`. List all your Models you want to have Permissions for in the `$collection` Array and change the email for the Super-Admin:
 
@@ -176,7 +176,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $role->givePermissionTo(Permission::all());
 
         // Give User Super-Admin Role
-        $user = App\User::whereEmail('your@email.com')->first(); // enter your email here
+        $user = \App\Models\User::where('email', 'your@email.com')->first(); // enter your email here
         $user->assignRole('super-admin');
     }
 }
@@ -209,6 +209,7 @@ class ContactPolicy extends BasePolicy
     public $key = 'contact';
 }
 ```
+
 It should now work as exptected. Just create a Role, modify its Permissions and the Policy should take care of the rest.
 
 > **Note**: Don't forget to add your Policy to your `$policies` in `App\Providers\AuthServiceProvider`.
@@ -244,6 +245,8 @@ class User {
 
 use App\Nova\Permission;
 use App\Nova\Role;
+use App\Policies\PermissionPolicy;
+use App\Policies\RolePolicy;
 
 // ...
 
@@ -254,7 +257,10 @@ public function tools()
         \Sereny\NovaPermissions\NovaPermissions::make()
             ->roleResource(Role::class)
             ->permissionResource(Permission::class)
+            ->rolePolicy(RolePolicy::class)
+            ->permissionPolicy(PermissionPolicy::class)
             ->disablePermissions()
+            ->disableMenu();
             ->hideFieldsFromRole([
                 'id',
                 'guard_name'
@@ -287,53 +293,18 @@ To customize the `Role` model you need to use `Sereny\NovaPermissions\Traits\Sup
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Support\Str;
 use Sereny\NovaPermissions\Traits\SupportsRole;
 use Spatie\Permission\Models\Role as BaseRole;
 
 class Role extends BaseRole
 {
-    use SupportsRole; // REQUIRED TRAIT
-
-     /**
-     * The "booted" method of the model.
-     *
-     * @return void
-     */
-    protected static function booted(): void
-    {
-        static::saving(function (Role $role) {
-            if ($role->id === null) {
-                $role->id = Str::uuid()->toString();
-            }
-        });
-    }
-
-    /**
-     * Force key type as string
-     *
-     * @return string
-     */
-    public function getKeyType()
-    {
-        return 'string';
-    }
-
-    /**
-     * Disable incrementing
-     *
-     * @return bool
-     */
-    public function getIncrementing()
-    {
-        return false;
-    }
+    use HasUuids,
+        SupportsRole; // REQUIRED TRAIT
 }
 
 ```
-
-
-
 
 ## Credits
 
